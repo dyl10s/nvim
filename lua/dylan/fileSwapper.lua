@@ -1,10 +1,15 @@
 local fileMap = {
+	-- Angular
 	["%.component%.ts$"] = ".component.html",
 	["%.component%.html$"] = ".component.ts",
 	["%.component%.scss$"] = ".component.html",
 	["%.module%.ts$"] = ".component.ts",
 	["%.service%.ts$"] = ".controller.ts",
-	["%.controller%.ts$"] = ".service.ts"
+	["%.controller%.ts$"] = ".service.ts",
+
+	-- C++
+	["%.cc$"] = ".h",
+	["%.h$"] = ".cc"
 }
 
 local function findMatchingFile()

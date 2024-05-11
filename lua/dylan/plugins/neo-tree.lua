@@ -12,12 +12,22 @@ return {
 			filesystem = {
 				follow_current_file = {
 					enabled = true
+				},
+				use_libuv_file_watcher = true,
+				filtered_items = {
+					always_show = {
+						".env",
+						".example.env"
+					}
 				}
 			},
 			buffers = {
 				follow_current_file = {
 					enabled = true
 				}
+			},
+			window = {
+				position = "right"
 			}
 		})
 	end

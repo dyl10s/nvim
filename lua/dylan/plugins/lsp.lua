@@ -1,19 +1,33 @@
+local function organize_imports()
+	local params = {
+		command = "_typescript.organizeImports",
+		arguments = { vim.api.nvim_buf_get_name(0) },
+		title = ""
+	}
+	vim.lsp.buf.execute_command(params)
+end
+
 return {
 	{
 		"williamboman/mason.nvim",
 		dependencies = {
 			"williamboman/mason-lspconfig.nvim",
 			"neovim/nvim-lspconfig",
-			'hrsh7th/cmp-nvim-lsp'
+			'hrsh7th/cmp-nvim-lsp',
+			"pmizio/typescript-tools.nvim",
+			"nvim-lua/plenary.nvim",
+			"neovim/nvim-lspconfig",
 		},
 		config = function()
 			require("mason").setup()
 			require("mason-lspconfig").setup()
+			require("typescript-tools").setup({})
 
 			-- Set up lspconfig.
 			local capabilities = require('cmp_nvim_lsp').default_capabilities()
 			local lspconfig = require("lspconfig")
 			local util = require("lspconfig.util")
+			local userLspAuGroup = vim.api.nvim_create_augroup('UserLspConfig', {})
 
 			require("mason-lspconfig").setup_handlers {
 				function(server_name) -- default handler (optional)
@@ -34,17 +48,48 @@ return {
 						}
 					}
 				end,
-				["tsserver"] = function()
-					lspconfig.tsserver.setup {
+				["clangd"] = function()
+					lspconfig.clangd.setup {
+						cmd = {
+							-- see clangd --help-hidden
+							"clangd",
+							"--background-index",
+							-- by default, clang-tidy use -checks=clang-diagnostic-*,clang-analyzer-*
+							-- to add more checks, create .clang-tidy file in the root directory
+							-- and add Checks key, see https://clang.llvm.org/extra/clang-tidy/
+							"--clang-tidy",
+							"--completion-style=bundled",
+							"--cross-file-rename",
+							"--header-insertion=iwyu",
+						},
 						capabilities = capabilities,
-						root_dir = util.root_pattern("package.json", ".git")
+init_options = {
+    clangdFileStatus = true, -- Provides information about activity on clangd’s per-file worker thread
+    usePlaceholders = true,
+    completeUnimported = true,
+    semanticHighlighting = true,
+  },
 					}
 				end,
-				["eslint"] = function()
-					lspconfig.eslint.setup {
-						capabilities = capabilities,
-						root_dir = util.root_pattern("package.json", ".git")
-					}
+				["tsserver"] = function()
+					-- skip for now and use tstools
+					if false then
+						lspconfig.tsserver.setup {
+							capabilities = capabilities,
+							lint_options = {
+								preferences = {
+									importModuleSpecifierPreference = 'relative',
+									importModuleSpecifierEnding = 'minimal'
+								}
+							},
+							commands = {
+								OrganizeImports = {
+									organize_imports,
+									description = "Organize Imports"
+								}
+							}
+						}
+					end
 				end,
 				["angularls"] = function()
 					lspconfig.angularls.setup {
@@ -65,7 +110,7 @@ return {
 			-- Use LspAttach autocommand to only map the following keys
 			-- after the language server attaches to the current buffer
 			vim.api.nvim_create_autocmd('LspAttach', {
-				group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+				group = userLspAuGroup,
 				callback = function(ev)
 					-- Enable completion triggered by <c-x><c-o>
 					vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
@@ -84,6 +129,7 @@ return {
 					createBufferBind('n', 'gi', vim.lsp.buf.implementation, "Goto implementation")
 					createBufferBind('n', '<leader>D', vim.lsp.buf.type_definition, "Type definition")
 					createBufferBind('n', '<leader>ca', vim.lsp.buf.code_action, "Code action")
+					createBufferBind('n', '<leader>oi', organize_imports, "Organize imports")
 					createBufferBind('n', '<leader>f', function()
 						vim.lsp.buf.format { async = true }
 					end, "Format")

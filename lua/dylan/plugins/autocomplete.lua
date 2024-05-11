@@ -6,8 +6,9 @@ return {
 			'hrsh7th/cmp-buffer',
 			'hrsh7th/cmp-path',
 			'hrsh7th/cmp-cmdline',
+			'hrsh7th/cmp-nvim-lsp-signature-help',
 			'L3MON4D3/LuaSnip',
-			'saadparwaiz1/cmp_luasnip'
+			'saadparwaiz1/cmp_luasnip',
 		},
 		config = function()
 			local cmp = require('cmp')
@@ -20,8 +21,8 @@ return {
 					end,
 				},
 				window = {
-					-- completion = cmp.config.window.bordered(),
-					-- documentation = cmp.config.window.bordered(),
+					completion = cmp.config.window.bordered(),
+					documentation = cmp.config.window.bordered(),
 				},
 				mapping = cmp.mapping.preset.insert({
 					['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -33,6 +34,7 @@ return {
 				sources = cmp.config.sources({
 						{ name = 'nvim_lsp' },
 						{ name = 'luasnip' }, -- For luasnip users.
+						{ name = 'nvim_lsp_signature_help' }
 					},
 					{
 						{ name = 'buffer' },

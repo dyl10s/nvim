@@ -5,6 +5,22 @@ function AddToCSpellWordlist(opts, shouldLint)
 	local cspell_file = vim.fs.dirname(vim.fs.find({ "cspell.json" }, { upwards = true })[1]) .. "/cspell.json"
 	local existing_words = vim.fn.json_decode(vim.fn.readfile(cspell_file))
 
+	-- Check if cspell.json exists
+	if vim.fn.filereadable(cspell_file) == 1 then
+		existing_words = vim.fn.json_decode(vim.fn.readfile(cspell_file))
+	else
+		-- Create cspell.json if it doesn't exist
+		local newFile = io.open(cspell_file, "w")
+		if newFile then
+			newFile:write('{ "words": [] }')
+			newFile:close()
+			print("Created cspell.json file.")
+		else
+			print("Error creating cspell.json file.")
+			return
+		end
+	end
+
 	local new_word = opts.args
 
 	if vim.fn.index(existing_words.words, new_word) == -1 then
@@ -52,9 +68,9 @@ return {
 				typescript = { "eslint_d", "cspell" },
 				javascriptreact = { "eslint_d", "cspell" },
 				typescriptreact = { "eslint_d", "cspell" },
-				html = { "eslint_d", "cspell" },
-				css = { "eslint_d", "cspell" },
-				scss = { "eslint_d", "cspell" },
+				html = { "cspell" },
+				css = { "cspell" },
+				scss = { "cspell" },
 				lua = { "cspell" }
 			}
 
