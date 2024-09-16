@@ -14,14 +14,14 @@ return {
 			"williamboman/mason-lspconfig.nvim",
 			"neovim/nvim-lspconfig",
 			'hrsh7th/cmp-nvim-lsp',
-			"pmizio/typescript-tools.nvim",
 			"nvim-lua/plenary.nvim",
 			"neovim/nvim-lspconfig",
+			"yioneko/nvim-vtsls"
 		},
 		config = function()
 			require("mason").setup()
 			require("mason-lspconfig").setup()
-			require("typescript-tools").setup({})
+			local telescope = require("telescope.builtin")
 
 			-- Set up lspconfig.
 			local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -63,16 +63,16 @@ return {
 							"--header-insertion=iwyu",
 						},
 						capabilities = capabilities,
-init_options = {
-    clangdFileStatus = true, -- Provides information about activity on clangd’s per-file worker thread
-    usePlaceholders = true,
-    completeUnimported = true,
-    semanticHighlighting = true,
-  },
+						init_options = {
+							clangdFileStatus = true, -- Provides information about activity on clangd’s per-file worker thread
+							usePlaceholders = true,
+							completeUnimported = true,
+							semanticHighlighting = true,
+						},
 					}
 				end,
 				["tsserver"] = function()
-					-- skip for now and use tstools
+					-- skip for now and use vtsls
 					if false then
 						lspconfig.tsserver.setup {
 							capabilities = capabilities,
@@ -94,11 +94,59 @@ init_options = {
 				["angularls"] = function()
 					lspconfig.angularls.setup {
 						capabilities = capabilities,
-						root_dir = util.root_pattern("project.json", "angular.json", "package.json", ".git")
+						single_file_support = false,
+						root_dir = util.root_pattern(".git"),
+						filetypes = { 'typescript', 'html', 'typescriptreact', 'typescript.tsx', 'htmlangular' }
 					}
 				end,
+				["vtsls"] = function()
+					lspconfig.vtsls.setup {
+						root_dir = util.root_pattern(".git"),
+						settings = {
+							complete_function_calls = true,
+							experimental = {
+								completion = {
+									enableServerSideFuzzyMatch = true
+								}
+							},
+							typescript = {
+								tsserver = {
+									maxTsServerMemory = 8192
+								},
+								suggest = {
+									completeFunctionCalls = false
+								},
+								inlayHints = {
+									parameterNames = { enabled = "all" },
+									includeInlayParameterNameHintsWhenArgumentMatchesName = { enabled = false }
+								}
+							}
+						}
+					}
+				end
 			}
 
+			local lsp_augroup = vim.api.nvim_create_augroup("lsp", { clear = true })
+
+			local vtsls = require("vtsls");
+
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				group = lsp_augroup,
+				pattern = "*.ts",
+				callback = function()
+					local isDone = false;
+
+					vtsls.commands["add_missing_imports"](0, function()
+						vtsls.commands["organize_imports"](0, function()
+							isDone = true;
+						end)
+					end)
+
+					vim.wait(5000, function()
+						return isDone;
+					end)
+				end,
+			})
 
 			-- Global mappings.
 			-- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -119,13 +167,18 @@ init_options = {
 						vim.keymap.set(mode, keymap, action, { buffer = ev.buf, desc = desc })
 					end
 
+					createBufferBind('n', 'ch', function()
+						-- Enable inlay hints
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+					end, "Toggle [C]ode [H]ints");
+
 					-- Buffer local mappings.
 					-- See `:help vim.lsp.*` for documentation on any of the below functions
 					createBufferBind('n', 'gD', vim.lsp.buf.declaration, "Goto declaration")
 					createBufferBind('n', 'gd', vim.lsp.buf.definition, "Goto definition")
 					createBufferBind('n', 'K', vim.lsp.buf.hover, "Code hover")
 					createBufferBind('n', '<leader>cr', vim.lsp.buf.rename, "Rename")
-					createBufferBind('n', 'gr', vim.lsp.buf.references, "Goto references")
+					createBufferBind('n', 'gr', telescope.lsp_references, "Goto references")
 					createBufferBind('n', 'gi', vim.lsp.buf.implementation, "Goto implementation")
 					createBufferBind('n', '<leader>D', vim.lsp.buf.type_definition, "Type definition")
 					createBufferBind('n', '<leader>ca', vim.lsp.buf.code_action, "Code action")

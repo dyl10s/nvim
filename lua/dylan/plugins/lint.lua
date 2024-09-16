@@ -3,6 +3,7 @@ function AddToCSpellWordlist(opts, shouldLint)
 	shouldLint = shouldLint == nil or shouldLint
 
 	local cspell_file = vim.fs.dirname(vim.fs.find({ "cspell.json" }, { upwards = true })[1]) .. "/cspell.json"
+
 	local existing_words = vim.fn.json_decode(vim.fn.readfile(cspell_file))
 
 	-- Check if cspell.json exists
@@ -57,9 +58,9 @@ return {
 			local lint = require("lint")
 
 			local cspell = lint.linters.cspell
-			if vim.fs.find({ "package.json", ".git" }, { upwards = true })[1] then
+			if vim.fs.find({ ".git" }, { upwards = true })[1] then
 				cspell.args = {
-					'--root=' .. vim.fs.dirname(vim.fs.find({ "package.json", ".git" }, { upwards = true })[1])
+					'--root=' .. vim.fs.dirname(vim.fs.find({ ".git" }, { upwards = true })[1])
 				}
 			end
 

@@ -1,11 +1,12 @@
 return {
 	"folke/trouble.nvim",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
-	config = function()
-		vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle("document_diagnostics") end, {
-			desc = "Open Exception List"
-		})
-		vim.keymap.set("n", "<leader>xn", function() require("trouble").next({ skip_groups = true, jump = true }); end,
-			{ desc = "Next Exception" })
-	end
+	opts = {}, -- for default options, refer to the configuration section for custom setup.
+	cmd = "Trouble",
+	keys = {
+		{
+			"<leader>xx",
+			"<cmd>Trouble diagnostics toggle<cr>",
+			desc = "Diagnostics (Trouble)",
+		},
+	}
 }

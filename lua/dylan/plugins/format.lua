@@ -4,32 +4,23 @@ return {
 		config = function()
 			require("conform").setup({
 				formatters_by_ft = {
-					typescript = { { "prettierd", "prettier" } },
-					typescriptreact = { { "prettierd", "prettier" } },
-					html = { { "prettierd", "prettier" } },
-					javascript = { { "prettierd", "prettier" } },
-					javascriptreact = { { "prettierd", "prettier" } },
-					css = { { "prettierd", "prettier" } },
-					scss = { { "prettierd", "prettier" } },
-					json = { { "prettierd", "prettier" } },
-					cpp = { { "clang-format" } },
-					cc = { { "clang-format" } },
-					h = { { "clang-format" } },
+					typescript = { "prettierd", "prettier", stop_after_first = true },
+					typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+					html = { "prettierd", "prettier", stop_after_first = true },
+					javascript = { "prettierd", "prettier", stop_after_first = true },
+					javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+					css = { "prettierd", "prettier", stop_after_first = true },
+					scss = { "prettierd", "prettier", stop_after_first = true },
+					json = { "prettierd", "prettier", stop_after_first = true },
+					cpp = { "clang-format", stop_after_first = true },
+					cc = { "clang-format", stop_after_first = true },
+					h = { "clang-format", stop_after_first = true }
 				}
 			})
 
 			local format_augroup = vim.api.nvim_create_augroup("format", { clear = true })
 
 			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = format_augroup,
-				pattern = "*.ts",
-				callback = function()
-					vim.cmd([[:TSToolsAddMissingImports sync]])
-					vim.cmd([[:TSToolsOrganizeImports sync]])
-				end,
-			})
-
-			vim.api.nvim_create_autocmd("BufWritePost", {
 				group = format_augroup,
 				pattern = "*",
 				callback = function(args)

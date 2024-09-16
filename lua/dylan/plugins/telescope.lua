@@ -44,7 +44,8 @@ return {
 			vim.api.nvim_set_keymap('n', '<Leader>gb', [[:Telescope git_branches<CR>]],
 				{ noremap = true, silent = true, desc = "Switch Branch" })
 			vim.keymap.set("n", "<leader>sw", telescope.grep_string, { desc = "[S]earch For Current [W]ord" })
-			vim.keymap.set("n", "<leader>sr", telescope.resume, { desc = "[S]serch [R]esume" })
+			vim.keymap.set("n", "<leader>sr", telescope.resume, { desc = "[S]earch [R]esume" })
+			vim.keymap.set("n", "<leader>sh", telescope.help_tags, { desc = "[S]earch [H]elp" })
 		end
 	}
 }

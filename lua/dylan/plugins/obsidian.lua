@@ -33,6 +33,6 @@ return {
 
 		vim.keymap.set("n", "<leader>od", [[:ObsidianToday<CR>]], { desc = "Open daily obsidian note" })
 		vim.keymap.set("n", "<leader>oy", [[:ObsidianYesterday<CR>]], { desc = "Open yesterday's obsidian note" })
-		vim.keymap.set("n", "<leader>os", [[:ObsidianQuickSwitch<CR>]], { desc = "Search obsidian notes" })
+		vim.keymap.set("n", "<leader>os", [[:ObsidianSearch<CR>]], { desc = "Search obsidian notes" })
 	end
 }
